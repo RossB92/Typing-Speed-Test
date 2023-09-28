@@ -6,6 +6,13 @@ import math
 from nltk.corpus import gutenberg
 import random
 
+# ------------------ Random Words -----------------------#
+
+moby = set(nltk.Text(gutenberg.words("melville-moby_dick.txt")))
+moby = [word.lower() for word in moby if len(word) > 2]
+
+a = set(nltk.Text(gutenberg.words("carroll-alice.txt")))
+a = [word.lower() for word in a if len(word) > 2]
 
 # -------------------- CONSTANTS ------------------------#
 GREY_BLUE = "#b0bcd1"
@@ -15,15 +22,14 @@ for i in range(0, 51):
     random_word_list.append(random_word)
 reps = 0
 timer = None
-TYPING_TIME = 5
+TYPING_TIME = 15
 
-# ------------------ Random Words -----------------------#
 
-moby = set(nltk.Text(gutenberg.words("melville-moby_dick.txt")))
-moby = [word.lower() for word in moby if len(word) > 2]
+# -------------------- START TEST ------------------------#
 
 
 def start_test():
+    typing_area.focus()
     words_to_type = Label(text=random_word_list, wraplength=250)
     words_to_type.grid(column=2, row=2)
     count_down(TYPING_TIME)
@@ -42,15 +48,49 @@ def count_down(count):
         global timer
         timer = window.after(1000, count_down, count - 1)
     if count == 0:
-        count_words()
+        word_check()
 
 
-# -------------------- WORD COUNTER ---------------------#
+# -------------------- WORD CHECK ---------------------#
 
 
-def count_words():
-    number_of_words = typing_area.get()
-    print(number_of_words)
+def word_check():
+    typed_words = typing_area.get()
+    typed_words = typed_words.split()
+    word_number = 0
+    correct_words = 0
+    for word in typed_words:
+        print(f"Target Word: {random_word_list[word_number]}")
+        print(f"Typed Word: {word}")
+        if word == random_word_list[word_number]:
+            correct_words += 1
+        word_number += 1
+    show_stats(typed_words, correct_words)
+
+
+# --------------------- STATS -------------------------- #
+def show_stats(typed_words, correct_words):
+    typed_words_stats = Label(
+        text=f"You typed {len(typed_words)} total words", wraplength=250
+    )
+    typed_words_stats.grid(column=2, row=6)
+
+    correct_words_stats = Label(
+        text=f"You typed {correct_words} words correctly", wraplength=250
+    )
+    correct_words_stats.grid(column=2, row=7)
+
+    incorrect_words = len(typed_words) - correct_words
+    incorrect_words_stats = Label(
+        text=f"You typed {incorrect_words} incorrectly", wraplength=250
+    )
+    incorrect_words_stats.grid(column=2, row=8)
+
+    words_per_minute = correct_words * (60 / TYPING_TIME)
+    words_per_minute_stats = Label(
+        text=f"You type at a speed of {words_per_minute} words per minute"
+    )
+    words_per_minute_stats.grid(column=2, row=10)
 
 
 # -------------------- UI SETUP -------------------------#
